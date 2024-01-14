@@ -25,6 +25,10 @@ def mensaje(txt, quiet, speaker):
 def main(args):
     voicebox = None if args.quiet else SimpleVoicebox(tts=ESpeakNG(config=ESpeakConfig(voice="es-es")), effects=[], )
 
+    strAcorde = ""
+    pideAcordes: bool = args.acordes
+    pideSemitonos: bool = (not pideAcordes) and args.semitonos
+
     manosTxt = "izquierda derecha"
     notasTxt = "Do Re Mi Fa Sol La Si"
     notasSost = "Do Re Fa Sol La"
@@ -34,12 +38,14 @@ def main(args):
     if args.mano == 'ambas':
         manos = manosTxt.split(" ")
 
+    if pideAcordes:
+        strAcorde = "acorde con "
     frec = args.frecuencia
     periodo = 60.0 / frec
 
     naturales = list(product(notasTxt.split(" "), " "))
     multNaturales = args.natural
-    if args.semitonos:
+    if pideSemitonos:
         semitonos = list(product(notasBemol.split(" "), ["bemol"])) + list(product(notasSost.split(" "), ["sostenido"]))
     else:
         semitonos = []
@@ -64,7 +70,7 @@ def main(args):
         mano, (nota, tono) = choice(candidatos)
         resultados.append((mano, (nota, tono)))
         ahora = clock_gettime_ns(CLOCK)
-        mandato = f"Mano {mano} {nota} {tono} "
+        mandato = f"{strAcorde} Mano {mano} {nota} {tono} "
         mensaje(mandato, args.quiet, voicebox)
 
         after = clock_gettime_ns(CLOCK)
@@ -98,6 +104,9 @@ def ProcesaArgumentos():
 
     parser.add_argument('-s', '--semitonos', dest='semitonos', action=BooleanOptionalAction,
                         help='Pide semitonos (sostenido o bemol)', required=False, default=True)
+
+    parser.add_argument('-a', '--acordes', dest='acordes', action=BooleanOptionalAction, help='Pide acordes',
+                        required=False, default=False)
 
     parser.add_argument('-q', '--quiet', dest='quiet', action="store_true", help='Sin sonido', required=False,
                         default=False)
