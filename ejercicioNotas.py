@@ -66,10 +66,25 @@ def main(args):
     if not args.quiet:
         sleep(2)
 
-    for _ in range(args.numNotas):
+    numNotas = args.numNotas
+    timedRun = bool(args.maxTime)
+    if args.maxTime:
+        numNotas = round((args.maxTime*1.5) * frec )
+        tFin = clock_gettime_ns(CLOCK) + (args.maxTime / nSinSecs)
+        print(f"El ejercicio durará {args.maxTime} segundos")
+    else:
+        print(f"Van a ser {numNotas} notas")
+
+    for _ in range(numNotas):
         mano, (nota, tono) = choice(candidatos)
         resultados.append((mano, (nota, tono)))
         ahora = clock_gettime_ns(CLOCK)
+        if timedRun:
+            if ahora >= tFin:
+                mensajeSalida = "Campana y se acabó"
+                mensaje(mensajeSalida, args.quiet, voicebox)
+                break
+
         mandato = f"{strAcorde} Mano {mano} {nota} {tono} "
         mensaje(mandato, args.quiet, voicebox)
 
@@ -89,6 +104,9 @@ def ProcesaArgumentos():
     parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v', dest='verbose', action="count", required=False, help='', default=0)
     parser.add_argument('-d', dest='debug', action="store_true", required=False, help='', default=False)
+
+    parser.add_argument('-t', '--maxtime', dest='maxTime', action="store", required=False,
+                        help='Tiempo máximo de duración del ejercicio (en segundos)', default=0, type=int)
 
     parser.add_argument('-n', '--numnotas', dest='numNotas', action="store", required=False,
                         help='Numero de notas a poner', default=100, type=int)
