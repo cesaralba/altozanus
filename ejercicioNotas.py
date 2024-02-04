@@ -70,7 +70,7 @@ def main(args):
 
         numNotas = args.numNotas
         timedRun = bool(args.maxTime)
-        if args.maxTime:
+        if timedRun:
             numNotas = round((args.maxTime*1.5) * frec )
             tFin = clock_gettime_ns(CLOCK) + (args.maxTime / nSinSecs)
             print(f"El ejercicio durará {args.maxTime} segundos")
